@@ -2,6 +2,7 @@ package com.itlifter.coster.action;
 
 import java.util.Date;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -49,7 +50,7 @@ public class AuthHandler {
 	@Produces(MediaType.TEXT_XML)
 	public AuthReqTransaction sayXMLAuthReq() {
 		com.itlifter.coster.model.AuthReqTransaction authReqTransaction = new AuthReqTransaction();
-		authReqTransaction.setFHAccountCode("23454785415252");
+		authReqTransaction.setFHAccountCode("234547");
 		authReqTransaction.setFHCLastFourDigits(1234);
 		authReqTransaction.setMerchantIdentifier("identifier");
 		authReqTransaction.setRetrievalReference("ret");
@@ -66,11 +67,11 @@ public class AuthHandler {
 
 	@Path("authResponseTransaction")
 	@POST
-	@Produces(MediaType.TEXT_XML)
+	@Consumes(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_XML)
 	public AuthResponseTransaction sayXMLAuthResponse(AuthReqTransaction authReq) {
 		System.out.println(authReq.getFHAccountCode());
 		com.itlifter.coster.model.AuthResponseTransaction authResponse = new AuthResponseTransaction();
-
 		authResponse.setCardExpiration("cardexp.");
 		authResponse.setFHAccountCode(authReq.getFHAccountCode());
 		authResponse.setFHCLastFourDigits(authReq.getFHCLastFourDigits());
@@ -110,7 +111,7 @@ public class AuthHandler {
 	public SettlementRequestTransaction sayXMLSattlement() {
 		com.itlifter.coster.model.SettlementRequestTransaction settlementRequestTransaction = new SettlementRequestTransaction();
 		settlementRequestTransaction.setApprovalCode("Approved");
-		settlementRequestTransaction.setFHAccountCode("23454785415252");
+		settlementRequestTransaction.setFHAccountCode("234547");
 		settlementRequestTransaction.setFHCLastFourDigits(2123);
 		settlementRequestTransaction.setMerchantIdentifier("Comviva");
 		settlementRequestTransaction.setRetrievalReference("sanyam");
