@@ -49,16 +49,15 @@ public class AuthHandler {
 	@Produces(MediaType.TEXT_XML)
 	public AuthReqTransaction sayXMLAuthReq() {
 		com.itlifter.coster.model.AuthReqTransaction authReqTransaction = new AuthReqTransaction();
-		authReqTransaction.setFHAccountCode("asas");
+		authReqTransaction.setFHAccountCode("23454785415252");
 		authReqTransaction.setFHCLastFourDigits(1234);
 		authReqTransaction.setMerchantIdentifier("identifier");
 		authReqTransaction.setRetrievalReference("ret");
 		authReqTransaction.setTransactionAmount(12.12);
 		authReqTransaction.setTransactionDescription("sass");
-	
-		authReqTransaction.setTransmissionDateTime(XMLDateFactory.getXmlDateObj(new Date()));
-		
-		
+
+		authReqTransaction.setTransmissionDateTime(XMLDateFactory
+				.getXmlDateObj(new Date()));
 
 		return authReqTransaction;
 		// return
@@ -68,28 +67,41 @@ public class AuthHandler {
 	@Path("authResponseTransaction")
 	@POST
 	@Produces(MediaType.TEXT_XML)
-	public AuthResponseTransaction sayXMLAuthResponse(
-			AuthReqTransaction authReqTransaction) {
-		System.out.println(authReqTransaction.getFHAccountCode());
-		com.itlifter.coster.model.AuthResponseTransaction authResponseTransaction = new AuthResponseTransaction();
-		authResponseTransaction.setApprovalCode("11");
-		authResponseTransaction.setCardExpiration("cardexp.");
-		authResponseTransaction.setFHAccountCode(authReqTransaction
-				.getFHAccountCode());
-		authResponseTransaction.setFHCLastFourDigits(authReqTransaction
-				.getFHCLastFourDigits());
-		authResponseTransaction.setRetrievalReference(authReqTransaction
-				.getRetrievalReference());
-		authResponseTransaction.setTransactionAmount(authReqTransaction
-				.getTransactionAmount());
-		authResponseTransaction.setTransactionDescription(authReqTransaction
+	public AuthResponseTransaction sayXMLAuthResponse(AuthReqTransaction authReq) {
+		System.out.println(authReq.getFHAccountCode());
+		com.itlifter.coster.model.AuthResponseTransaction authResponse = new AuthResponseTransaction();
+
+		authResponse.setCardExpiration("cardexp.");
+		authResponse.setFHAccountCode(authReq.getFHAccountCode());
+		authResponse.setFHCLastFourDigits(authReq.getFHCLastFourDigits());
+		authResponse.setRetrievalReference(authReq.getRetrievalReference());
+		authResponse.setTransactionAmount(authReq.getTransactionAmount());
+		authResponse.setTransactionDescription(authReq
 				.getTransactionDescription());
-		authResponseTransaction.setTransmissionDateTime(authReqTransaction
-				.getTransmissionDateTime());
-		authResponseTransaction.setResponseCode("12");
-		authResponseTransaction.setSystemTraceAuditNumber(12.232);
-		authResponseTransaction.setInternalResponseCode("10");
-		return authResponseTransaction;
+		authResponse.setTransmissionDateTime(authReq.getTransmissionDateTime());
+		authResponse.setSystemTraceAuditNumber(12.232);
+
+		// if account code is even then approve request
+		if (Integer.parseInt(authReq.getFHAccountCode()) % 2 == 0) {
+			authResponse.setApprovalCode("Approved");
+			authResponse.setResponseCode("00");
+		}
+		// account code is odd then reject request
+		else {
+			// if credit card is even soft decline
+			if (authReq.getFHCLastFourDigits() % 2 == 0) {
+				authResponse.setResponseCode("13");
+				authResponse.setApprovalCode("Invalid Currency Code");
+				authResponse.setInternalResponseCode("04");
+			}
+			// if credit card is even hard decline
+			else {
+				authResponse.setResponseCode("41");
+				authResponse.setApprovalCode("Invalid card- status Lost");
+				authResponse.setInternalResponseCode("999");
+			}
+		}
+		return authResponse;
 	}
 
 	@Path("settlementrequest")
@@ -97,15 +109,16 @@ public class AuthHandler {
 	@Produces(MediaType.TEXT_XML)
 	public SettlementRequestTransaction sayXMLSattlement() {
 		com.itlifter.coster.model.SettlementRequestTransaction settlementRequestTransaction = new SettlementRequestTransaction();
-		settlementRequestTransaction.setApprovalCode("11");
-		settlementRequestTransaction.setFHAccountCode("10");
+		settlementRequestTransaction.setApprovalCode("Approved");
+		settlementRequestTransaction.setFHAccountCode("23454785415252");
 		settlementRequestTransaction.setFHCLastFourDigits(2123);
 		settlementRequestTransaction.setMerchantIdentifier("Comviva");
 		settlementRequestTransaction.setRetrievalReference("sanyam");
 		settlementRequestTransaction.setSystemTraceAuditNumber(42.12);
 		settlementRequestTransaction.setTransactionAmount(1280);
 		settlementRequestTransaction.setTransactionDescription("my payment");
-		settlementRequestTransaction.setTransmissionDateTime(XMLDateFactory.getXmlDateObj(new Date()));
+		settlementRequestTransaction.setTransmissionDateTime(XMLDateFactory
+				.getXmlDateObj(new Date()));
 		settlementRequestTransaction.setTranType("credit");
 
 		return settlementRequestTransaction;
@@ -115,37 +128,39 @@ public class AuthHandler {
 	@POST
 	@Produces(MediaType.TEXT_XML)
 	public SettlementResponseTransaction sayXMLResponse(
-			SettlementRequestTransaction settlementRequestTransaction) {
-		System.out.println(settlementRequestTransaction.getFHAccountCode());
-		com.itlifter.coster.model.SettlementResponseTransaction settlementResponseTransaction = new SettlementResponseTransaction();
-		settlementResponseTransaction
-				.setApprovalCode(settlementRequestTransaction.getApprovalCode());
-		settlementResponseTransaction
-				.setFHAccountCode(settlementRequestTransaction
-						.getFHAccountCode());
-		settlementResponseTransaction.setInternalResponseCode("12");
-		settlementResponseTransaction
-				.setMerchantIdentifier(settlementRequestTransaction
-						.getMerchantIdentifier());
-		settlementResponseTransaction.setResponseCode("21");
-		settlementResponseTransaction
-				.setRetrievalReference(settlementRequestTransaction
-						.getRetrievalReference());
-		settlementResponseTransaction
-				.setSystemTraceAuditNumber(settlementRequestTransaction
-						.getSystemTraceAuditNumber());
-		settlementResponseTransaction
-				.setTransactionAmount(settlementRequestTransaction
-						.getTransactionAmount());
-		settlementResponseTransaction
-				.setTransactionDescription(settlementRequestTransaction
-						.getTransactionDescription());
-		settlementResponseTransaction
-				.setTransmissionDateTime(settlementRequestTransaction
-						.getTransmissionDateTime());
-		settlementResponseTransaction.setTranType(settlementRequestTransaction
-				.getTranType());
-		return settlementResponseTransaction;
+			SettlementRequestTransaction settlementReq) {
+		System.out.println(settlementReq.getFHAccountCode());
+		com.itlifter.coster.model.SettlementResponseTransaction settlementRes = new SettlementResponseTransaction();
+		settlementRes.setApprovalCode(settlementReq.getApprovalCode());
+		settlementRes.setFHAccountCode(settlementReq.getFHAccountCode());
+		settlementRes.setFHCLastFourDigits(settlementReq.getFHCLastFourDigits());
+		settlementRes.setMerchantIdentifier(settlementReq
+				.getMerchantIdentifier());
+		settlementRes.setRetrievalReference(settlementReq
+				.getRetrievalReference());
+		settlementRes.setSystemTraceAuditNumber(settlementReq
+				.getSystemTraceAuditNumber());
+		settlementRes
+				.setTransactionAmount(settlementReq.getTransactionAmount());
+		settlementRes.setTransactionDescription(settlementReq
+				.getTransactionDescription());
+		settlementRes.setTransmissionDateTime(settlementReq
+				.getTransmissionDateTime());
+		settlementRes.setTranType(settlementReq.getTranType());
+	
+		//approved if fh account no. is even
+		if (Integer.parseInt(settlementRes.getFHAccountCode()) % 2 == 0) {
+			settlementRes.setInternalResponseCode("00");
+			settlementRes.setResponseCode("00");
+		}
+		//reject if odd
+		else
+		{
+			settlementRes.setInternalResponseCode("01");
+			settlementRes.setResponseCode("01");
+		}
+		
+		return settlementRes;
 	}
 
 	// This method is called if HTML is request
